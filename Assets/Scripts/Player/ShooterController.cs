@@ -1,4 +1,6 @@
-﻿using Cinemachine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Cinemachine;
 using Plugins.MonoCache;
 using StarterAssets;
 using UnityEngine;
@@ -10,6 +12,7 @@ namespace Player
     [RequireComponent(typeof(StarterAssetsInputs))]
     public class ShooterController : MonoCache
     {
+        [SerializeField] private int _damage = 10;
         [SerializeField] private CinemachineVirtualCamera _aimCamera;
         [SerializeField] private float _normalSensitivity;
         [SerializeField] private float _aimSensitivity;
@@ -18,12 +21,19 @@ namespace Player
         [SerializeField] private Bullet _bulletPrefab;
         [SerializeField] private Transform _spawnPointBullet;
 
-        private const string Kick = "Kick";
+        [SerializeField] private Transform _impactPoint;
         
+        private const string Kick = "Kick";
+        private const string LayerPlayer = "Player";
+
         private StarterAssetsInputs _inputs;
         private PlayerController _personController;
         private Camera _camera;
         private Animator _animator;
+        private int _layerMaskPlayer;
+
+        private Collider[] _hits = new Collider[1];
+        private List<Bullet> _poolBullets = new ();
 
         private void Awake()
         {
@@ -31,6 +41,18 @@ namespace Player
             _inputs = Get<StarterAssetsInputs>();
             _camera = Camera.main;
             _animator = Get<Animator>();
+
+            _layerMaskPlayer = LayerMask.NameToLayer(LayerPlayer);
+        }
+
+        private void Start()
+        {
+            for (int i = 0; i < 30; i++)
+            {
+                var bullet = Instantiate(_bulletPrefab, _spawnPointBullet.position, Quaternion.identity);
+                bullet.gameObject.SetActive(false);
+                _poolBullets.Add(bullet);
+            }
         }
 
         protected override void UpdateCached() 
@@ -55,7 +77,7 @@ namespace Player
                 Vector3 worldAimTarget = mouseWorldPosition;
                 worldAimTarget.y = transform.position.y;
                 Vector3 aimDirection = (worldAimTarget - transform.position).normalized;
-                transform.forward = Vector3.Lerp(transform.forward, aimDirection, Time.deltaTime * 20f);
+                transform.forward = Vector3.Lerp(transform.forward, aimDirection, Time.deltaTime * 30f);
                 _animator.SetLayerWeight(1, Mathf.Lerp(_animator.GetLayerWeight(1), 1f, Time.deltaTime * 13f));
             }
             else
@@ -68,15 +90,36 @@ namespace Player
 
             if (_inputs.shoot)
             {
-                Vector3 aimDir = (mouseWorldPosition - _spawnPointBullet.position).normalized;
+                var bullet = _poolBullets.FirstOrDefault(bullet => 
+                    bullet.isActiveAndEnabled == false);
 
-                Instantiate(_bulletPrefab, _spawnPointBullet.position, Quaternion.LookRotation(aimDir, Vector3.up));
+                if (bullet != null) 
+                    bullet.Shot(_spawnPointBullet.position, mouseWorldPosition);
+
                 _inputs.shoot = false;
             }
 
-            if (_inputs.kick) 
+            if (_inputs.kick)
+            {
                 _animator.SetTrigger(Kick);
+                _inputs.kick = false;
+            }
         }
 
+        private void OnKick()
+        {
+            if (Hit(out Collider hit))
+            {
+                hit.gameObject.TryGetComponent(out IHealth health);
+                health?.TakeDamage(_damage);
+            }
+        }
+
+        private bool Hit(out Collider hit)
+        {
+            int hitsCount = Physics.OverlapSphereNonAlloc(_impactPoint.position, .5f, _hits, ~_layerMaskPlayer);
+            hit = _hits.FirstOrDefault();
+            return hitsCount > 0;
+        }
     }
 }
