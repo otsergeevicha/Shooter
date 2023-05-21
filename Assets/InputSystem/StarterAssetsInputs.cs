@@ -1,31 +1,39 @@
+using PlayerLogic;
+using Plugins.MonoCache;
 using UnityEngine;
-#if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
-#endif
+using Weapons;
 
-namespace StarterAssets
+namespace InputSystem
 {
-	public class StarterAssetsInputs : MonoBehaviour
+	[RequireComponent(typeof(WeaponSelector))]
+	[RequireComponent(typeof(Player))]
+	public class StarterAssetsInputs : MonoCache
 	{
+		private WeaponSelector _weaponSelector;
+		
 		[Header("Character Input Values")]
-		public Vector2 move;
-		public Vector2 look;
-		public bool jump;
-		public bool sprint;
-		public bool aim;
-		public bool shoot;
-		public bool kick;
-		public bool uzi;
-		public bool pistol;
-		public bool grenade;
-		public bool fist;
+		public Vector2 Move;
+		public Vector2 Look;
+		public bool Jump;
+		public bool Sprint;
+		public bool Aim;
+		public bool Shoot;
+		public bool Kick;
+		public bool Uzi;
+		public bool Pistol;
+		public bool Grenade;
+		public bool Fist;
 
 		[Header("Movement Settings")]
-		public bool analogMovement;
+		public bool AnalogMovement;
 
 		[Header("Mouse Cursor Settings")]
-		public bool cursorLocked = true;
-		public bool cursorInputForLook = true;
+		public bool CursorLocked = true;
+		public bool CursorInputForLook = true;
+
+		private void Awake() => 
+			_weaponSelector = Get<WeaponSelector>();
 
 #if ENABLE_INPUT_SYSTEM
 		public void OnMove(InputValue value) => 
@@ -33,7 +41,7 @@ namespace StarterAssets
 
 		public void OnLook(InputValue value)
 		{
-			if(cursorInputForLook) 
+			if(CursorInputForLook) 
 				LookInput(value.Get<Vector2>());
 		}
 
@@ -48,49 +56,70 @@ namespace StarterAssets
 
 		public void OnShoot(InputValue value) => 
 			ShootInput(value.isPressed);
+		
+		public void OnFist(InputValue value) => 
+			FistInput(value.isPressed);
+
+		public void OnPistol(InputValue value) => 
+			PistolInput(value.isPressed);
+
+		public void OnUzi(InputValue value) => 
+			UziInput(value.isPressed);
+
+		public void OnGrenade(InputValue value) => 
+			GrenadeInput(value.isPressed);
 #endif
-
-
 		public void MoveInput(Vector2 newMoveDirection) => 
-			move = newMoveDirection;
+			Move = newMoveDirection;
 
 		public void LookInput(Vector2 newLookDirection) => 
-			look = newLookDirection;
+			Look = newLookDirection;
 
 		public void JumpInput(bool newJumpState) => 
-			jump = newJumpState;
+			Jump = newJumpState;
 
 		public void SprintInput(bool newSprintState) => 
-			sprint = newSprintState;
+			Sprint = newSprintState;
 
 		public void AimInput(bool newAimState) => 
-			aim = newAimState;
+			Aim = newAimState;
 
 		public void ShootInput(bool newShootState) => 
-			shoot = newShootState;
+			Shoot = newShootState;
 		
 		public void KickInput(bool virtualKickState) => 
-			kick = virtualKickState;
+			Kick = virtualKickState;
 
-		public void UziInput(bool newUziState) => 
-			uzi = newUziState;
+		public void UziInput(bool newUziState)
+		{
+			_weaponSelector.SelectAbility((int)IndexAbility.Uzi);
+			Uzi = newUziState;
+		}
 
-		public void PistolInput(bool newPistolState) => 
-			pistol = newPistolState;
+		public void PistolInput(bool newPistolState)
+		{
+			_weaponSelector.SelectAbility((int)IndexAbility.Pistol);
+			Pistol = newPistolState;
+		}
 
-		public void GrenadeInput(bool newGrenadeState) => 
-			grenade = newGrenadeState;
+		public void FistInput(bool virtualFistState)
+		{
+			_weaponSelector.SelectAbility((int)IndexAbility.Fist);
+			Fist = virtualFistState;
+		}
 
-		public void FistInput(bool virtualFistState) => 
-			fist = virtualFistState;
+		public void GrenadeInput(bool newGrenadeState)
+		{
+			_weaponSelector.SelectAbility((int)IndexAbility.Grenade);
+			Grenade = newGrenadeState;
+		}
 
 		private void OnApplicationFocus(bool hasFocus) => 
-			SetCursorState(cursorLocked);
+			SetCursorState(CursorLocked);
 
 		private void SetCursorState(bool newState) => 
 			Cursor.lockState = newState 
 				? CursorLockMode.Locked 
 				: CursorLockMode.None;
 	}
-	
 }
