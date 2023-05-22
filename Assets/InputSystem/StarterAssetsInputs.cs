@@ -32,8 +32,10 @@ namespace InputSystem
 		public bool CursorLocked = true;
 		public bool CursorInputForLook = true;
 
-		private void Awake() => 
+		private void Awake()
+		{
 			_weaponSelector = Get<WeaponSelector>();
+		}
 
 #if ENABLE_INPUT_SYSTEM
 		public void OnMove(InputValue value) => 

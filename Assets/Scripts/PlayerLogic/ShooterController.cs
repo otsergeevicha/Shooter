@@ -2,6 +2,7 @@
 using System.Linq;
 using Cinemachine;
 using InputSystem;
+using Plugins.MonoCache;
 using Services.Health;
 using UnityEngine;
 using Weapons;
@@ -14,7 +15,7 @@ namespace PlayerLogic
     [RequireComponent(typeof(StarterAssetsInputs))]
     [RequireComponent(typeof(Animator))]
     [RequireComponent(typeof(WeaponSelector))]
-    public class ShooterController : Player
+    public class ShooterController : MonoCache
     {
         [SerializeField] private int _damage = 10;
         [SerializeField] private CinemachineVirtualCamera _aimCamera;
@@ -53,7 +54,7 @@ namespace PlayerLogic
 
         private void Start()
         {
-            for (int i = 0; i < 30; i++)
+            for (int i = 0; i < 60; i++)
             {
                 var bullet = Instantiate(_bulletPrefab, _bulletsContainer.position, Quaternion.identity);
                 bullet.gameObject.SetActive(false);

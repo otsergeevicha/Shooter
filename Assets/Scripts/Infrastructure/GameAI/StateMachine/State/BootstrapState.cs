@@ -28,7 +28,7 @@ namespace Infrastructure.GameAI.StateMachine.State
 
         private void EnterLoadLevel()
         {
-            _stateMachine.Enter<LoadLevelState, string>("OpenCity");
+            _stateMachine.Enter<LoadLevelState, string>(Constants.OpenCity);
         }
 
         public void Exit()

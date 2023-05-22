@@ -1,4 +1,5 @@
 ﻿using InputSystem;
+using Plugins.MonoCache;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,7 +9,7 @@ namespace PlayerLogic
 #if ENABLE_INPUT_SYSTEM
     [RequireComponent(typeof(PlayerInput))]
 #endif
-    public class PlayerController : Player
+    public class PlayerController : MonoCache
     {
         [SerializeField] private float _sensitivity = 1f;
 
