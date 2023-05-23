@@ -15,4 +15,5 @@ public static class Constants
     public static readonly int GrenadeCast = Animator.StringToHash("GrenadeCast");
     public static readonly int Shots = Animator.StringToHash("Shots");
     public static readonly int EnterDoor = Animator.StringToHash("EnterDoor");
+    public static readonly int ExitDoor = Animator.StringToHash("ExitDoor");
 }

@@ -4,8 +4,6 @@ namespace CarLogic
 {
     public class DoorDriver : Car
     {
-        [SerializeField] private float _speed = 180f;
-        
         private Vector3 _firstPosition;
         private Animation _animation;
 
@@ -13,6 +11,9 @@ namespace CarLogic
             _animation = Get<Animation>();
 
         public void Open() => 
+            _animation.Play();
+
+        public void Close() => 
             _animation.Play();
     }
 }

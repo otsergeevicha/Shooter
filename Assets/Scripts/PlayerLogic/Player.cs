@@ -1,7 +1,6 @@
 ﻿using CarLogic;
 using Cinemachine;
 using Plugins.MonoCache;
-using Services.InputService.InputPlayer.VirtualInputs;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -19,11 +18,14 @@ namespace PlayerLogic
         [SerializeField] private CinemachineVirtualCamera _followCamera;
         [SerializeField] private CinemachineVirtualCamera _aimCamera;
         [SerializeField] private CinemachineVirtualCamera _carCamera;
-        
+
+        [SerializeField] private Transform _endExitPoint;
+
         private DoorDriver _doorCar;
         private Animator _animator;
         private CharacterController _controller;
         private PlayerInput _inputs;
+        private Transform _seatPoint;
 
         private void Awake()
         {
@@ -35,32 +37,68 @@ namespace PlayerLogic
         public void InitSeatCar(Transform seatPoint, DoorDriver doorCar)
         {
             _doorCar = doorCar;
+            _seatPoint = seatPoint;
             _controller.enabled = false;
 
             _inputs.DeactivateInput();
-            transform.position = seatPoint.position;
-           transform.rotation = seatPoint.rotation;
+            InitPosition(seatPoint);
 
-           _animator.SetTrigger(Constants.EnterDoor);
+            _animator.SetTrigger(Constants.EnterDoor);
         }
 
-        private void Off() =>
-            gameObject.SetActive(false);
-        
-        private void OnStartOpen() => 
+        public void InitExitCar(Transform exitPoint)
+        {
+            InitPosition(exitPoint);
+
+            On();
+            _animator.SetTrigger(Constants.ExitDoor);
+        }
+
+        private void OnStartExit() =>
+            _doorCar.Close();
+
+        private void OnStartOpen() =>
             _doorCar.Open();
+
+        private void OnEndExit() => 
+            ChangeViewInterface(true);
+
+        private void OnEndAnimationExit()
+        {
+            InitPosition(_endExitPoint);
+            _seatPoint.gameObject.GetComponent<SeatPointCar>().OnCollider();
+
+            _controller.enabled = true;
+            _inputs.ActivateInput();
+        }
 
         private void OnEndOpen()
         {
-            _canvasCrosshair.gameObject.SetActive(false);
-            _canvasJoystick.gameObject.SetActive(false);
-            _canvasCarController.gameObject.SetActive(true);
-            
-            _followCamera.gameObject.SetActive(false);
-            _aimCamera.gameObject.SetActive(false);
-            _carCamera.gameObject.SetActive(true);
-
+            ChangeViewInterface(false);
             Off();
+        }
+
+        private void On() =>
+            gameObject.SetActive(true);
+
+        private void Off() =>
+            gameObject.SetActive(false);
+
+        private void ChangeViewInterface(bool flag)
+        {
+            _canvasCrosshair.gameObject.SetActive(flag);
+            _canvasJoystick.gameObject.SetActive(flag);
+            _canvasCarController.gameObject.SetActive(!flag);
+
+            _followCamera.gameObject.SetActive(flag);
+            _aimCamera.gameObject.SetActive(flag);
+            _carCamera.gameObject.SetActive(!flag);
+        }
+
+        public void InitPosition(Transform endExitPoint)
+        {
+            transform.position = endExitPoint.position;
+            transform.rotation = endExitPoint.rotation;
         }
     }
 }

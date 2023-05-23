@@ -6,11 +6,17 @@ namespace CarLogic
     public class SeatPointCar : Car
     {
         [SerializeField] private DoorDriver _door;
-        
+
         private void OnTriggerEnter(Collider collision)
         {
-            if (collision.TryGetComponent(out Player player)) 
+            if (collision.TryGetComponent(out Player player))
+            {
                 player.Get<Player>().InitSeatCar(transform, _door);
+                Get<SphereCollider>().enabled = false;
+            }
         }
+
+        public void OnCollider() => 
+            Get<SphereCollider>().enabled = true;
     }
 }
