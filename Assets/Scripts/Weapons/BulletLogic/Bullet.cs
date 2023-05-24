@@ -16,12 +16,10 @@ namespace Weapons.BulletLogic
 
         private Rigidbody _rigidbody;
         private Vector3 _firstPosition;
-        private AudioSource _audioShot;
 
         private void Awake()
         {
             _rigidbody = Get<Rigidbody>();
-            _audioShot = Get<AudioSource>();
         }
 
         public void Shot(Vector3 currentPosition, Vector3 direction, int damage)
@@ -31,8 +29,6 @@ namespace Weapons.BulletLogic
             transform.position = currentPosition;
             transform.LookAt(direction);
             gameObject.SetActive(true);
-
-            _audioShot.Play();
             
             _rigidbody.velocity = transform.forward * _speed;
         }
