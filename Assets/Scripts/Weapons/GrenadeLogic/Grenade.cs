@@ -1,5 +1,5 @@
-﻿using Plugins.MonoCache;
-using Services.Health;
+﻿using CitizenLogic.AbstractEntity;
+using Plugins.MonoCache;
 using UnityEngine;
 
 namespace Weapons.GrenadeLogic
@@ -31,13 +31,11 @@ namespace Weapons.GrenadeLogic
 
             for (int i = 0; i < _overlappedColliders.Length; i++)
             {
+                if (_overlappedColliders[i].gameObject.TryGetComponent(out Citizen citizen))
+                    citizen.TakeDamage(_damage);
+                
                 if (_overlappedColliders[i].gameObject.TryGetComponent(out Rigidbody touchedExplosion))
-                {
-                    if (touchedExplosion.TryGetComponent(out IHealth health))
-                        health?.TakeDamage(_damage);
-
                     touchedExplosion.AddExplosionForce(_forceExplosion, transform.position, _radiusExplosion);
-                }
             }
 
             _audioShot.Play();

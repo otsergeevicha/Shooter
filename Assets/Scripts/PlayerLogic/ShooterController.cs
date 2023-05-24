@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Cinemachine;
+using CitizenLogic.AbstractEntity;
 using InputSystem;
 using Plugins.MonoCache;
 using Services.Health;
@@ -40,6 +41,7 @@ namespace PlayerLogic
         private WeaponSelector _weaponSelector;
 
         private Vector3 _rayWorldPoint;
+        private RaycastHit _ray;
 
         private void Awake()
         {
@@ -72,6 +74,7 @@ namespace PlayerLogic
             if (Physics.Raycast(ray, out RaycastHit raycastHit))
             {
                 _rayWorldPoint = raycastHit.point;
+                _ray = raycastHit;
                 _personController.SetRotateOnMove(false);
             }
 
@@ -84,6 +87,9 @@ namespace PlayerLogic
                 
                 if (CheckAbilityHands() == false)
                     _animator.SetLayerWeight(1, Mathf.Lerp(_animator.GetLayerWeight(1), 1, Time.deltaTime * 13f));
+                
+                if (_ray.collider.gameObject.TryGetComponent(out Citizen citizen)) 
+                    citizen.AnAttack();
             }
             else
             {
@@ -145,8 +151,8 @@ namespace PlayerLogic
         {
             if (Hit(out Collider hit))
             {
-                hit.gameObject.TryGetComponent(out IHealth health);
-                health?.TakeDamage(_damage);
+                hit.gameObject.TryGetComponent(out Citizen citizen);
+                citizen.TakeDamage(_damage);
             }
         }
 

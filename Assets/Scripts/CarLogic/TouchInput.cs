@@ -1,7 +1,7 @@
 using Plugins.MonoCache;
 using UnityEngine;
 
-namespace Car
+namespace CarLogic
 {
     public class TouchInput : MonoCache
     {

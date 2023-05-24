@@ -1,6 +1,5 @@
-﻿using System;
+﻿using CitizenLogic.AbstractEntity;
 using Plugins.MonoCache;
-using Services.Health;
 using UnityEngine;
 
 namespace Weapons.BulletLogic
@@ -12,8 +11,8 @@ namespace Weapons.BulletLogic
         [SerializeField] private Transform _vfxHitGreen;
         [SerializeField] private Transform _vfxHitRed;
 
-        private int _damage;
-        private float _speed = 100f;
+        private int _damage = 50;
+        private float _speed = 20f;
 
         private Rigidbody _rigidbody;
         private Vector3 _firstPosition;
@@ -40,20 +39,15 @@ namespace Weapons.BulletLogic
 
         private void OnTriggerEnter(Collider hit)
         {
-            TryTakeDamage(hit);
+            if (hit.gameObject.TryGetComponent(out Citizen citizen))
+                citizen.TakeDamage(_damage);
 
-            Instantiate(hit.GetComponent<IHealth>() != null
+            Instantiate(hit.GetComponent<Citizen>() != null
                     ? _vfxHitGreen
                     : _vfxHitRed, transform.position,
                 Quaternion.identity);
             
             gameObject.SetActive(false);
-        }
-
-        private void TryTakeDamage(Collider hit)
-        {
-            if (hit.TryGetComponent(out IHealth health))
-                health.TakeDamage(_damage);
         }
     }
 }

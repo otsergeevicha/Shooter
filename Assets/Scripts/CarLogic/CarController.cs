@@ -3,7 +3,7 @@ using Plugins.MonoCache;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Car
+namespace CarLogic
 {
     public class CarController : MonoCache
     {
